@@ -16,9 +16,11 @@ letsencrypt_domains_cmd() {
   local le_root="$app_root/letsencrypt"
   local cert_root="$le_root/$cert_name"
 
+  letsencrypt_create_root "$app"
+
   mkdir -p $cert_root
 
   echo "$domains" > "$cert_root/DOMAINS"
 }
 
-letsencrypt_domains_cmd
+letsencrypt_domains_cmd "$@"
