@@ -8,9 +8,9 @@ letsencrypt_domains_cmd() {
   #shellcheck disable=SC2034
   declare desc="set domains for a cert_name within an app"
 
-  local app="$1"; verify_app_name "$app"
-  local cert_name="$2"
-  local domains="$3"
+  local app="$2"; verify_app_name "$app"
+  local cert_name="$3"
+  local domains="$4"
 
   local app_root="$DOKKU_ROOT/$app"
   local le_root="$app_root/letsencrypt"
