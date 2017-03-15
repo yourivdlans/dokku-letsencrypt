@@ -9,7 +9,8 @@ case "$1" in
       #shellcheck disable=SC2034
       declare desc="return letsencrypt plugin help content"
       cat<<help_content
-    letsencrypt <app>, Enable or renew letsencrypt for app
+    letsencrypt <app> <cert_name>, Enable or renew letsencrypt for cert_name within app
+    letsencrypt:domains <app> <cert_name> <domains>, Set domains for cert_name within app
     letsencrypt:auto-renew, Auto-renew all apps secured by letsencrypt if renewal is necessary
     letsencrypt:auto-renew <app>, Auto-renew app if renewal is necessary
     letsencrypt:cron-job [--add --remove], Add or remove a cron job that periodically calls auto-renew.
