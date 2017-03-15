@@ -124,7 +124,7 @@ letsencrypt_acme () {
 
   fi
 
-  # letsencrypt_link "$app" "$cert_name" "$config_dir"
+  letsencrypt_link "$app" "$cert_name" "$config_dir"
   nginx_build_config "$app"
 }
 
