@@ -54,8 +54,6 @@ letsencrypt_acme () {
 
   letsencrypt_create_root "$app"
 
-  letsencrypt_include_vhosts "$app"
-
   dokku_log_info1 "Getting letsencrypt certificate for ${app}/${cert_name}..."
 
   # read simp_le arguments from appropriate config file into the config array

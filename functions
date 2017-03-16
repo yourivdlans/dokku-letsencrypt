@@ -183,19 +183,6 @@ letsencrypt_check_email() {
   fi
 }
 
-letsencrypt_include_vhosts () {
-  #shellcheck disable=SC2034
-  declare desc="include ssl vhosts for nginx"
-  local app="$1"; verify_app_name "$app"
-
-  local app_root="$DOKKU_ROOT/$app"
-  local app_config_dir="$app_root/nginx.conf.d"
-
-  sigil -f "$PLUGIN_AVAILABLE_PATH/letsencrypt/templates/letsencrypt.conf.sigil" \
-    APP="$app" \
-    > "/etc/nginx/conf.d/letsencrypt_$app.conf"
-}
-
 letsencrypt_link () {
   #shellcheck disable=SC2034
   declare desc="symlink let's encrypt certificates so they can be found by dokku"
@@ -228,7 +215,7 @@ letsencrypt_write_nginx_conf() {
   # Create new nginx vhost
   sigil -f "$PLUGIN_AVAILABLE_PATH/letsencrypt/templates/nginx.conf.sigil" \
     DOMAINS="$domains" \
-    CONFIG_DIR="$cert_root/current" \
+    CONFIG_DIR="$cert_root/certs/current" \
     CERT_NAME="$cert_name" \
     APP="$app" \
     > "$cert_root/nginx.conf"
