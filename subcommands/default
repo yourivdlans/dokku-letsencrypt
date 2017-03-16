@@ -58,24 +58,6 @@ letsencrypt_acmeproxy_off() {
   restart_nginx
 }
 
-letsencrypt_link () {
-  #shellcheck disable=SC2034
-  declare desc="symlink let's encrypt certificates so they can be found by dokku"
-
-  local app="$1"; verify_app_name "$app"
-  local cert_name="$2"
-  local config_dir="$3"
-
-  local app_root="$DOKKU_ROOT/$app"
-  local le_root="$app_root/letsencrypt"
-  local cert_root="$le_root/$cert_name"
-
-  dokku_log_info1 "Installing let's encrypt certificates"
-
-  # link the current config directory to 'current'
-  ln -nsf "$config_dir" "$cert_root/certs/current"
-}
-
 
 letsencrypt_acme () {
   #shellcheck disable=SC2034
