@@ -5,6 +5,20 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/nginx-vhosts/functions"
 source "$PLUGIN_AVAILABLE_PATH/letsencrypt/functions"
 
 
+letsencrypt_include_vhosts () {
+  #shellcheck disable=SC2034
+  declare desc="include ssl vhosts for nginx"
+  local app="$1"; verify_app_name "$app"
+
+  local app_root="$DOKKU_ROOT/$app"
+  local app_config_dir="$app_root/nginx.conf.d"
+
+  sigil -f "$PLUGIN_AVAILABLE_PATH/letsencrypt/templates/letsencrypt.conf.sigil" \
+    APP="$app" \
+    > "$app_config_dir/letsencrypt_$app.conf"
+}
+
+
 letsencrypt_acmeproxy_on () {
   #shellcheck disable=SC2034
   declare desc="enable ACME proxy for an app"
@@ -21,9 +35,9 @@ letsencrypt_acmeproxy_on () {
 
 
   # insert acme_port into config template, place resulting config in nginx.conf.d
-  sigil -f "$PLUGIN_AVAILABLE_PATH/letsencrypt/templates/letsencrypt.conf.sigil" \
+  sigil -f "$PLUGIN_AVAILABLE_PATH/letsencrypt/templates/letsencrypt_challenge.conf.sigil" \
     ACME_PORT="$acme_port" \
-    > "$app_config_dir/letsencrypt.conf"
+    > "$app_config_dir/letsencrypt_challenge.conf"
 
   restart_nginx
 }
@@ -39,7 +53,7 @@ letsencrypt_acmeproxy_off() {
 
   dokku_log_info1 "Disabling ACME proxy for $app..."
 
-  [[ -f "$app_config_dir/letsencrypt.conf" ]] && rm "$app_config_dir/letsencrypt.conf"
+  [[ -f "$app_config_dir/letsencrypt_challenge.conf" ]] && rm "$app_config_dir/letsencrypt_challenge.conf"
 
   restart_nginx
 }
@@ -71,6 +85,8 @@ letsencrypt_acme () {
   local acme_port="$3"
 
   letsencrypt_create_root "$app"
+
+  letsencrypt_include_vhosts "$app"
 
   dokku_log_info1 "Getting letsencrypt certificate for ${app}/${cert_name}..."
 
