@@ -21,9 +21,9 @@ letsencrypt_acmeproxy_on () {
 
 
   # insert acme_port into config template, place resulting config in nginx.conf.d
-  sigil -f "$PLUGIN_AVAILABLE_PATH/letsencrypt/templates/letsencrypt_challenge.conf.sigil" \
+  sigil -f "$PLUGIN_AVAILABLE_PATH/letsencrypt/templates/letsencrypt.conf.sigil" \
     ACME_PORT="$acme_port" \
-    > "$app_config_dir/letsencrypt_challenge.conf"
+    > "$app_config_dir/letsencrypt.conf"
 
   restart_nginx
 }
@@ -39,7 +39,7 @@ letsencrypt_acmeproxy_off() {
 
   dokku_log_info1 "Disabling ACME proxy for $app..."
 
-  [[ -f "$app_config_dir/letsencrypt_challenge.conf" ]] && rm "$app_config_dir/letsencrypt_challenge.conf"
+  [[ -f "$app_config_dir/letsencrypt.conf" ]] && rm "$app_config_dir/letsencrypt.conf"
 
   restart_nginx
 }
