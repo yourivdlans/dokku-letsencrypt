@@ -33,8 +33,11 @@ letsencrypt_generate_certs_cmd() {
     chmod 750 "$config_dir"
     chmod 640 "$config_dir/fullchain.pem" "$config_dir/server.csr" "$config_dir/key.pem"
 
+    letsencrypt_include_vhosts "$app"
     letsencrypt_link "$app" "$cert_name" "$config_dir"
     letsencrypt_write_nginx_conf "$app" "$cert_name"
+
+    restart_nginx
 
     cat "$config_dir/server.csr"
   else

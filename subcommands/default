@@ -5,20 +5,6 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/nginx-vhosts/functions"
 source "$PLUGIN_AVAILABLE_PATH/letsencrypt/functions"
 
 
-letsencrypt_include_vhosts () {
-  #shellcheck disable=SC2034
-  declare desc="include ssl vhosts for nginx"
-  local app="$1"; verify_app_name "$app"
-
-  local app_root="$DOKKU_ROOT/$app"
-  local app_config_dir="$app_root/nginx.conf.d"
-
-  sigil -f "$PLUGIN_AVAILABLE_PATH/letsencrypt/templates/letsencrypt.conf.sigil" \
-    APP="$app" \
-    > "$app_config_dir/letsencrypt_$app.conf"
-}
-
-
 letsencrypt_acmeproxy_on () {
   #shellcheck disable=SC2034
   declare desc="enable ACME proxy for an app"
