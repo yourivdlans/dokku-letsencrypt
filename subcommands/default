@@ -54,21 +54,12 @@ letsencrypt_link () {
 
   local app_root="$DOKKU_ROOT/$app"
   local le_root="$app_root/letsencrypt"
-  local cert_root="$le_root/$cert_root"
+  local cert_root="$le_root/$cert_name"
 
   dokku_log_info1 "Installing let's encrypt certificates"
 
   # link the current config directory to 'current'
   ln -nsf "$config_dir" "$cert_root/certs/current"
-
-  # install the let's encrypt certificate for the app
-  # if [[ -z $DOKKU_APP_NAME ]]; then
-  #   dokku certs:add "$app" "$cert_root/certs/current/fullchain.pem" "$cert_root/certs/current/key.pem"
-  # else
-  #   dokku certs:add "$cert_root/certs/current/fullchain.pem" "$cert_root/certs/current/key.pem"
-  # fi
-
-
 }
 
 
@@ -125,7 +116,6 @@ letsencrypt_acme () {
   fi
 
   letsencrypt_link "$app" "$cert_name" "$config_dir"
-  # nginx_build_config "$app"
 
   local app_root="$DOKKU_ROOT/$app"
   local le_root="$app_root/letsencrypt"
@@ -136,7 +126,7 @@ letsencrypt_acme () {
   # Create new nginx vhost
   sigil -f "$PLUGIN_AVAILABLE_PATH/letsencrypt/templates/nginx.conf.sigil" \
     DOMAINS="$domains" \
-    CONFIG_DIR="$config_dir" \
+    CONFIG_DIR="$cert_root/current" \
     CERT_NAME="$cert_name" \
     APP="$app" \
     > "$cert_root/nginx.conf"
