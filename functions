@@ -182,3 +182,23 @@ letsencrypt_check_email() {
     return 1
   fi
 }
+
+letsencrypt_write_nginx_conf() {
+  declare desc="write an nginx vhost config"
+  local app="$1"
+  local cert_name="$2"
+
+  local app_root="$DOKKU_ROOT/$app"
+  local le_root="$app_root/letsencrypt"
+  local cert_root="$le_root/$cert_name"
+
+  local domains="$(cat $cert_root/DOMAINS)"
+
+  # Create new nginx vhost
+  sigil -f "$PLUGIN_AVAILABLE_PATH/letsencrypt/templates/nginx.conf.sigil" \
+    DOMAINS="$domains" \
+    CONFIG_DIR="$cert_root/current" \
+    CERT_NAME="$cert_name" \
+    APP="$app" \
+    > "$cert_root/nginx.conf"
+}
