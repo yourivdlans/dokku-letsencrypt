@@ -20,6 +20,8 @@ letsencrypt_domains_cmd() {
 
   mkdir -p $cert_root
 
+  dokku_log_info1 "Adding domains to $cert_root/DOMAINS..."
+
   echo "$domains" > "$cert_root/DOMAINS"
 }
 

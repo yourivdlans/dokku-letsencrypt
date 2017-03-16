@@ -193,7 +193,7 @@ letsencrypt_include_vhosts () {
 
   sigil -f "$PLUGIN_AVAILABLE_PATH/letsencrypt/templates/letsencrypt.conf.sigil" \
     APP="$app" \
-    > "$app_config_dir/letsencrypt_$app.conf"
+    > "/etc/nginx/conf.d/letsencrypt_$app.conf"
 }
 
 letsencrypt_link () {
