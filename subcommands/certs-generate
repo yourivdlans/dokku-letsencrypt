@@ -10,17 +10,23 @@ letsencrypt_generate_certs_cmd() {
   local cmd="certs:generate"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
   [[ -z $3 ]] && dokku_log_fail "Please specify an bundled name for the certificate (e.g. client name)"
+  [[ -z $4 ]] && dokku_log_fail "Please specify a domain"
 
   # create check for DOMAINS existance
 
   local app="$2"; verify_app_name "$app"
   local cert_name="$3"
+  local domain="$4"
 
   local app_root="$DOKKU_ROOT/$app"
   local le_root="$app_root/letsencrypt"
   local cert_root="$le_root/$cert_name"
 
+  letsencrypt_create_root "$app"
+
   local config_dir="$(letsencrypt_configure_and_get_dir "$app" "$cert_name")"
+
+  echo "$domain" > "$cert_root/DOMAINS"
 
   if [[ ! -f "$config_dir/key.pem" ]] && [[ ! -f "$config_dir/fullchain.pem" ]]; then
     local CERTS_GENERATE_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_certs.XXXXXXXXX")
