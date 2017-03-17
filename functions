@@ -91,7 +91,7 @@ letsencrypt_is_active() {
   local cert_root="$le_root/$cert_name"
 
   # Check if current symlink exists and not broken
-  [[ -L "$cert_root/certs/current" ] && [ -e "$cert_root/certs/current" ]] || return 2
+  [ -L "$cert_root/certs/current" ] && [ -e "$cert_root/certs/current" ] || return 2
 
   echo "$app"
 }
