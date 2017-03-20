@@ -20,7 +20,7 @@ letsencrypt_auto_renew_cmd() {
   local app="$2"
   local client="$3"
 
-  if [ -z "$app" ]; then
+  if [ -z "$app" ] ||  [ -z "$client" ]; then
     dokku_log_info2 "Auto-renewing all apps..."
 
     # For all apps, sorted by ascending time left until renewal.
