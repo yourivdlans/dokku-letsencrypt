@@ -16,7 +16,7 @@ case "$1" in
     letsencrypt:cron-job [--add --remove], Add or remove a cron job that periodically calls auto-renew.
     letsencrypt:domains <app> <client> <domains>, Set domains for client within app
     letsencrypt:help, Display letsencrypt help
-    letsencrypt:cleanup <app>, Remove stale certificate directories for app
+    letsencrypt:cleanup <app> <client>, Remove stale certificate directories for client within app
     letsencrypt:revoke <app>, Revoke letsencrypt certificate for app
     letsencrypt:ls, List letsencrypt-secured apps with certificate expiry times
 help_content
