@@ -19,7 +19,7 @@ letsencrypt_cleanup_cmd () {
   local client="$3"
 
   [[ -z "$app" ]] && echo "Please specify an app to run the command on" && exit 1
-  [[ -z "$client" ]] && echo "Please specify a client to run the command on" && exit 1
+  [[ -z "$client" ]] && echo "Please specify a client to run the command for" && exit 1
 
   verify_app_name "$app"
   letsencrypt_verify_client_name "$app" "$client"

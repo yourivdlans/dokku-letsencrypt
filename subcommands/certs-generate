@@ -15,7 +15,7 @@ letsencrypt_generate_certs_cmd() {
   # create check for DOMAINS existance
 
   local app="$2"; verify_app_name "$app"
-  local client="$3"; letsencrypt_verify_client_name "$app" "$client"
+  local client="$3"
   local domain="$4"
 
   local app_root="$DOKKU_ROOT/$app"
@@ -24,9 +24,11 @@ letsencrypt_generate_certs_cmd() {
 
   letsencrypt_create_root "$app"
 
-  local config_dir="$(letsencrypt_configure_and_get_dir "$app" "$client")"
+  mkdir -p $client_root
 
   echo "$domain" > "$client_root/DOMAINS"
+
+  local config_dir="$(letsencrypt_configure_and_get_dir "$app" "$client")"
 
   if [[ ! -f "$config_dir/key.pem" ]] && [[ ! -f "$config_dir/fullchain.pem" ]]; then
     local CERTS_GENERATE_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_certs.XXXXXXXXX")
@@ -46,7 +48,9 @@ letsencrypt_generate_certs_cmd() {
     letsencrypt_link "$app" "$client" "$config_dir"
     letsencrypt_write_nginx_conf "$app" "$client"
 
-    restart_nginx
+    if letsencrypt_validate_nginx; then
+      restart_nginx
+    fi
 
     cat "$config_dir/server.csr"
   else
