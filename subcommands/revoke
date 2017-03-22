@@ -9,13 +9,18 @@ letsencrypt_acme_revoke () {
   #shellcheck disable=SC2034
   declare desc="perform actual certificate revocation"
   local app="$1"
+  local client="$2"
+
+  local app_root="$DOKKU_ROOT/$app"
+  local le_root="$app_root/letsencrypt"
+  local client_root="$le_root/$client"
 
   letsencrypt_create_root "$app"
 
-  dokku_log_info1 "Revoking letsencrypt certificate for ${app}..."
+  dokku_log_info1 "Revoking letsencrypt certificate for ${app}/${client}..."
 
   # read simp_le arguments from appropriate config file into the config array
-  local config_dir="$(letsencrypt_configure_and_get_dir "$app")"
+  local config_dir="$(letsencrypt_configure_and_get_dir "$app" "$client")"
   read -r -a config < "$config_dir/config"
 
   # run letsencrypt as a docker container using "certonly" mode
@@ -47,16 +52,16 @@ letsencrypt_acme_revoke () {
   fi
 
   # move revoked certificates away
-  mv -f "$config_dir/fullchain.pem" "$config_dir/fullchain.pem.revoked" 
+  mv -f "$config_dir/fullchain.pem" "$config_dir/fullchain.pem.revoked"
   mv -f "$config_dir/chain.pem" "$config_dir/chain.pem.revoked"
   mv -f "$config_dir/cert.pem" "$config_dir/cert.pem.revoked"
   mv -f "$config_dir/key.pem" "$config_dir/key.pem.revoked"
 
-  # removing the certificate will automatically reconfigure nginx
-  if [[ -z $DOKKU_APP_NAME ]]; then
-    dokku certs:remove "$app"
-  else
-    dokku certs:remove
+  # removing the config to reconfigure nginx
+  rm -rf "$client_root/nginx.conf"
+
+  if letsencrypt_validate_nginx; then
+    restart_nginx
   fi
 
 }
@@ -74,14 +79,16 @@ letsencrypt_revoke_cmd() {
   ##
 
   local app="$2"
+  local client="$3"; letsencrypt_verify_client_name "$app" "$client"
 
-  [[ -z $app ]] && echo "Please specify an app to run the command on" && exit 1
+  [[ -z "$app" ]] && echo "Please specify an app to run the command on" && exit 1
+  [[ -z "$client" ]] && echo "Please specify a client to run the command for" && exit 1
 
-  dokku_log_info2 "Revoke Let's Encrypt certificate from ${app}..."
+  dokku_log_info2 "Revoke Let's Encrypt certificate for ${app}/${client}..."
 
   letsencrypt_check_email "$app"
   letsencrypt_update
-  letsencrypt_acme_revoke "$app" || true
+  letsencrypt_acme_revoke "$app" "$client" || true
 
   dokku_log_verbose "done"
 }

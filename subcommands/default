@@ -26,7 +26,9 @@ letsencrypt_acmeproxy_on () {
     ACME_PORT="$acme_port" \
     > "$app_config_dir/letsencrypt.conf"
 
-  restart_nginx
+  if letsencrypt_validate_nginx; then
+    restart_nginx
+  fi
 }
 
 
@@ -42,7 +44,9 @@ letsencrypt_acmeproxy_off() {
 
   [[ -f "$app_config_dir/letsencrypt.conf" ]] && rm "$app_config_dir/letsencrypt.conf"
 
-  restart_nginx
+  if letsencrypt_validate_nginx; then
+    restart_nginx
+  fi
 }
 
 

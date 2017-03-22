@@ -93,6 +93,11 @@ letsencrypt_is_active() {
   # Check if current symlink exists and not broken
   [ -L "$client_root/certs/current" ] && [ -e "$client_root/certs/current" ] || return 2
 
+  [[ -f "$client_root/certs/current/cert.pem" && \
+  -f "$client_root/certs/current/chain.pem" && \
+  -f "$client_root/certs/current/fullchain.pem" && \
+  -f "$client_root/certs/current/key.pem" ]] || return 2
+
   echo "$app"
 }
 
@@ -128,7 +133,7 @@ letsencrypt_configure_and_get_dir() {
   declare desc="assemble simp_le command line arguments and create a config hash directory for them"
 
   local app="$1"; verify_app_name "$app"
-  local client="$2"; letsencrypt_verify_client_name "$app" "$client"
+  local client="$2"
 
   local app_root="$DOKKU_ROOT/$app"
   local le_root="$app_root/letsencrypt"
@@ -233,4 +238,27 @@ letsencrypt_write_nginx_conf() {
     CLIENT="$client" \
     APP="$app" \
     > "$client_root/nginx.conf"
+}
+
+letsencrypt_validate_nginx() {
+  declare desc="validate entire nginx config"
+
+  local app_root="$DOKKU_ROOT/$app"
+  local le_root="$app_root/letsencrypt"
+
+  set +e
+  sudo /usr/sbin/nginx -t > /dev/null 2>&1
+  local exit_code=$?
+  set -e
+
+  if [[ "$exit_code" -ne "0" ]]; then
+    sudo /usr/sbin/nginx -t
+    shopt -s nullglob
+    local conf_file
+    for conf_file in $le_root/*/nginx.conf; do
+      dokku_log_verbose "validate_nginx failed. contents of $conf_file below..."
+      cat "$conf_file"
+    done
+    exit "$exit_code"
+  fi
 }
