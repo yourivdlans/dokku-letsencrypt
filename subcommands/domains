@@ -11,6 +11,7 @@ letsencrypt_domains_cmd() {
   local app="$2"; verify_app_name "$app"
   local client="$3"; letsencrypt_verify_client_name "$app" "$client"
   local domains="$4"
+  local delimiter=";"
 
   local app_root="$DOKKU_ROOT/$app"
   local le_root="$app_root/letsencrypt"
@@ -22,7 +23,7 @@ letsencrypt_domains_cmd() {
 
   dokku_log_info1 "Adding domains to $client_root/DOMAINS..."
 
-  echo "$domains" > "$client_root/DOMAINS"
+  echo ${domains//$delimiter/ } > "$client_root/DOMAINS"
 }
 
 letsencrypt_domains_cmd "$@"
