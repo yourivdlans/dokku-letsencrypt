@@ -14,7 +14,7 @@ case "$1" in
     letsencrypt:auto-renew <app> <client>, Auto-renew app if renewal is necessary
     letsencrypt:certs-generate <app> <client> <domain>, Generate self signed certificate for client within app
     letsencrypt:cron-job [--add --remove], Add or remove a cron job that periodically calls auto-renew.
-    letsencrypt:domains <app> <client> <domains>, Set domains for client within app
+    letsencrypt:domains <app> <client> "<domain>;<domain>", Set domains for client within app
     letsencrypt:help, Display letsencrypt help
     letsencrypt:cleanup <app> <client>, Remove stale certificate directories for client within app
     letsencrypt:revoke <app> <client>, Revoke letsencrypt certificate for app
