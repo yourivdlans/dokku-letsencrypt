@@ -35,10 +35,23 @@ letsencrypt_generate_certs_cmd() {
     pushd "$CERTS_GENERATE_TMP_WORK_DIR" > /dev/null
     trap 'popd &> /dev/null || true; rm -rf "$CERTS_GENERATE_TMP_WORK_DIR" > /dev/null' INT TERM EXIT
 
+    # Create CA
+    openssl genrsa -des3 -passout pass:x -out ca.pass.key 2048
+    openssl rsa -passin pass:x -in ca.pass.key -out ca.key
+    openssl req -new -key ca.key -out ca.csr \
+      -subj "/C=NL/ST=Zuid-Holland/L=Rotterdam/O=OrgName/OU=Security Department/CN=example.com"
+    openssl x509 -req -days 1 -in ca.csr -signkey ca.key -out ca.crt
+
+    # Create key
     openssl genrsa -des3 -passout pass:x -out server.pass.key 2048
     openssl rsa -passin pass:x -in server.pass.key -out key.pem
     openssl req -new -key key.pem -out server.csr
-    openssl x509 -req -days 365 -in server.csr -signkey key.pem -out fullchain.pem
+    openssl x509 -req -days 1 -in server.csr -CA ca.crt \
+      -CAkey ca.key -CAserial ca.srl -CAcreateserial \
+      -out server.crt
+
+    # Create fullchain.pem (same format as "simp_le ... -f fullchain.pem" creates)
+    cat {server.crt,ca.crt} > "$CERTS_GENERATE_TMP_WORK_DIR/fullchain.pem"
 
     dokku_log_info1 "Installing certificate and key..."
     mv -f "$CERTS_GENERATE_TMP_WORK_DIR/fullchain.pem" "$CERTS_GENERATE_TMP_WORK_DIR/server.csr" "$CERTS_GENERATE_TMP_WORK_DIR/key.pem"  "$config_dir"
